@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
+import os
 
 from lib.environments import UnityEnv
 from lib.ddpg_agent import DDPG_Agent
@@ -151,7 +152,9 @@ if __name__ == '__main__':
     if args.agent not in agents:
         print('invalid agent, must be ddpg or td3')
         sys.exit()
-    env = UnityEnv('Tennis', './Tennis_Linux_NoVis/Tennis.x86_64', train_mode=train_mode)
+    unity_game = os.environ.get('UNITY_GAME')
+    env = UnityEnv('Tennis', unity_game, train_mode=train_mode)
+    # env = UnityEnv('Tennis', './Tennis_Linux_NoVis/Tennis.x86_64', train_mode=train_mode)
     # env = UnityEnv('Tennis', './Tennis_Linux/Tennis.x86_64', train_mode=train_mode)
     name = args.name if args.name else args.agent
     agent_fn = agents[args.agent]
