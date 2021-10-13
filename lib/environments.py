@@ -39,7 +39,7 @@ class UnityEnv():
             train_mode = self.train_mode
         env_info = self.env.reset(train_mode=train_mode)[self.brain_name]
         self.num_agents = len(env_info.agents)
-        self.total_rewards = 0
+        self.total_rewards = np.zeros(self.num_agents)
         return env_info.vector_observations
 
     def close(self):
@@ -51,7 +51,8 @@ class UnityEnv():
         env_info = self.env.step(actions)[self.brain_name]
         next_states = env_info.vector_observations         # get next state (for each agent)
         rewards = env_info.rewards                         # get reward (for each agent)
-        self.total_rewards += rewards[0]
+        # print('rewards from step of environment', rewards)
+        self.total_rewards += rewards
         dones = env_info.local_done                        # see if episode finished
         states = next_states                               # roll over states to next time step
         if np.any(dones):

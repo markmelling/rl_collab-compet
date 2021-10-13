@@ -27,12 +27,12 @@ def eval_episode(env, agents):
         states, rewards, dones, info = env.step(all_actions)
         ret = info[0]['episodic_return']
         if ret is not None:
-            print('dones', dones)
+            # print('dones', dones)
             break
     return ret, steps_in_episode
 
 def eval_episodes(env, agents, num_episodes=20):
-    total_rewards = np.array((num_episodes, len(agents)))
+    total_rewards = np.zeros(num_episodes)
     record = pd.DataFrame(columns=['time', 'score'])
     max_steps_in_episode = 0
     for i in range(num_episodes):
@@ -41,7 +41,8 @@ def eval_episodes(env, agents, num_episodes=20):
         if steps > max_steps_in_episode:
             max_steps_in_episode = steps
         # total_rewards.append(np.sum(episode_rewards))
-        total_rewards[i,:] = episode_rewards
+        # print('rewards from episode', episode_rewards)
+        total_rewards[i] = np.max(episode_rewards)
         print(f'Episodes: {i} average {np.mean(total_rewards)}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
@@ -61,7 +62,7 @@ def train_agent(name, env, agents, max_steps=1e6, break_on_reward=35, save_inter
     print('start training')
     states = env.reset()
     # print('state', states)
-    record = pd.DataFrame(columns=['agent', 'time', 'steps', 'average_score'])
+    record = pd.DataFrame(columns=['time', 'steps', 'average_score'])
     t0 = time.time()
     highest_reward = 0
     dones = [False, False]
@@ -73,16 +74,14 @@ def train_agent(name, env, agents, max_steps=1e6, break_on_reward=35, save_inter
             save_agents(agents)
         if eval_interval and not agents[0].total_steps == 0 and not agents[0].total_steps % eval_interval:
             print('agent.eval_episodes')
-            average_reward = eval_episodes(env, agents, num_episodes=5)
+            average_reward = eval_episodes(env, agents, num_episodes=100)
             print(time.strftime("%H:%M:%S", time.localtime()),
                   f'After {agents[0].total_steps} steps ', 'average reward:', average_reward)
             t1 = time.time()
-            for agent in agents:
-                record = record.append(dict(agent=agent.name,
-                                            time=round(t1-t0),
-                                            steps=agent.total_steps,
-                                            average_score=round(average_reward, 2)), ignore_index=True)
-                record.to_csv(f'{name}.csv')
+            record = record.append(dict(time=round(t1-t0),
+                                        steps=agent.total_steps,
+                                        average_score=round(average_reward, 2)), ignore_index=True)
+            record.to_csv(f'{name}.csv')
             if average_reward > highest_reward:
                 highest_reward = average_reward
                 save_agents(agents, suffix='best-so-far')
@@ -146,7 +145,8 @@ if __name__ == '__main__':
     if args.agent not in agents:
         print('invalid agent, must be ddpg or td3')
         sys.exit()
-    env = UnityEnv('Tennis', './Tennis_Linux/Tennis.x86_64', train_mode=train_mode)
+    env = UnityEnv('Tennis', './Tennis_Linux_NoVis/Tennis.x86_64', train_mode=train_mode)
+    # env = UnityEnv('Tennis', './Tennis_Linux/Tennis.x86_64', train_mode=train_mode)
     name = args.name if args.name else args.agent
     agent_fn = agents[args.agent]
     agents = []
