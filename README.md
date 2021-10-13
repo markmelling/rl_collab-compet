@@ -61,6 +61,11 @@ Clone this repository if you've not done it already, then navigate to the python
 git clone https://github.com/markmelling/rl_collab-compet
 cd rl_collab-compet
 pip install .
+
+
+#### Create an IPython kernel if using a Jupyter notebook
+python -m ipykernel install --user --name drlnd --display-name "drlnd"
+
 ```
 
 #### Install the pre-prepared Unity environment
