@@ -51,7 +51,7 @@ def eval_episodes(env, agents, num_episodes=20):
         # total_rewards.append(np.sum(episode_rewards))
         # print('rewards from episode', episode_rewards)
         total_rewards[i] = np.max(episode_rewards)
-        print(f'Episode: {i} average so far {np.sum(total_rewards) / i}')
+        print(f'Episode: {i+1} rewards {episode_rewards} average so far {np.sum(total_rewards) / i+1}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
                                     score=round(np.sum(episode_rewards), 2)), ignore_index=True)
