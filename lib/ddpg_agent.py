@@ -27,6 +27,8 @@ WEIGHT_DECAY = 0        # L2 weight decay
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+print('running on', device)
+
 # LEARN_EVERY_STEPS = 20
 LEARN_EVERY_STEPS = 1
 
@@ -40,7 +42,12 @@ class DDPG_Agent(BaseAgent):
                  random_seed,
                  action_low=-1.0,
                  action_high=1.0,
-                 warm_up=int(1e4)):
+                 warm_up=int(1e4),
+                 replay_buffer=None,
+                 buffer_size=BUFFER_SIZE,
+                 batch_size=BATCH_SIZE,
+                 learn_every_steps=LEARN_EVERY_STEPS,
+                 ):
         """Initialize an Agent object.
         
         Params
@@ -57,6 +64,7 @@ class DDPG_Agent(BaseAgent):
         self.action_high = action_high
         self.warm_up = warm_up
         self.total_steps = 0
+        self.learn_every_steps = learn_every_steps
 
         print(f'DDPG_Agent action_size {self.action_size} state_size {self.state_size}')
 
@@ -72,7 +80,12 @@ class DDPG_Agent(BaseAgent):
             size=(self.action_size,), std=LinearSchedule(0.2))
 
         # Replay memory
-        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
+        self.buffer_size = buffer_size
+        self.batch_size = batch_size
+        if replay_buffer:
+            self.memory = replay_buffer
+        else:
+            self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
 
     
     # given a state what should be the action?
@@ -102,7 +115,7 @@ class DDPG_Agent(BaseAgent):
             self.noise.reset()
         # Learn, if enough samples are available in memory
         if self.memory.size() > BATCH_SIZE:
-            if self.total_steps % LEARN_EVERY_STEPS == 0:
+            if self.total_steps % self.learn_every_steps == 0:
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
 

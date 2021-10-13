@@ -8,9 +8,15 @@ import time
 from lib.environments import UnityEnv
 from lib.ddpg_agent import DDPG_Agent
 from lib.td3_agent import TD3_Agent
+from lib.replay_buffer import ReplayBuffer
 
 import sys
 import argparse
+
+BUFFER_SIZE = int(1e6)  # MM replay buffer size
+BATCH_SIZE = 128        # minibatch size - MM is 100
+RANDOM_SEED = 2
+LEARN_EVERY_STEPS = 1
 
 
 def eval_episode(env, agents):
@@ -43,7 +49,7 @@ def eval_episodes(env, agents, num_episodes=20):
         # total_rewards.append(np.sum(episode_rewards))
         # print('rewards from episode', episode_rewards)
         total_rewards[i] = np.max(episode_rewards)
-        print(f'Episodes: {i} average {np.mean(total_rewards)}')
+        print(f'Episodes: {i} average {np.sum(total_rewards) / i}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
                                     score=round(np.sum(episode_rewards), 2)), ignore_index=True)
@@ -59,7 +65,7 @@ def save_agents(agents, suffix=None):
             agent.save()
 
 def train_agent(name, env, agents, max_steps=1e6, break_on_reward=35, save_interval=1e4, eval_interval=1e4):
-    print('start training')
+    print(time.strftime("%H:%M:%S", time.localtime()), 'start training')
     states = env.reset()
     # print('state', states)
     record = pd.DataFrame(columns=['time', 'steps', 'average_score'])
@@ -150,15 +156,20 @@ if __name__ == '__main__':
     name = args.name if args.name else args.agent
     agent_fn = agents[args.agent]
     agents = []
+
+    replay_buffer = ReplayBuffer(env.action_size, BUFFER_SIZE, BATCH_SIZE, RANDOM_SEED)
     for i in range(env.num_agents):
         agent = agent_fn(name=f'name-{i}',
-                        state_size=env.state_size,
-                        action_size=env.action_size,
-                        random_seed=2,
-                        warm_up=int(1e4))
+                         state_size=env.state_size,
+                         action_size=env.action_size,
+                         random_seed=RANDOM_SEED,
+                         warm_up=int(1e4),
+                         replay_buffer=replay_buffer,
+                         buffer_size=BUFFER_SIZE,
+                         batch_size=BATCH_SIZE,
+                         learn_every_steps=LEARN_EVERY_STEPS)
         agents.append(agent)
     if train_mode:
-        print('training')
         max_steps = int(args.steps) if args.steps else int(1e6)
         train_agent(args.name, env, agents, max_steps=max_steps)
     else:
