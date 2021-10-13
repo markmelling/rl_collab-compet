@@ -115,7 +115,7 @@ class TD3_Agent(BaseAgent):
 
         self.memory.add(state, action, reward, next_state, done)
 
-        if done[0]:
+        if done:
             self.noise.reset()
         # Learn, if enough samples are available in memory
         if self.memory.size() > self.batch_size:

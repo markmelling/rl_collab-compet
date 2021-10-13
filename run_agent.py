@@ -32,6 +32,7 @@ def eval_episode(env, agents):
             # print('actions.shape', actions.shape)
             all_actions[i,:] = actions
         states, rewards, dones, info = env.step(all_actions)
+        # print('rewards ', rewards, 'dones', dones)
         ret = info[0]['episodic_return']
         if ret is not None:
             # print('dones', dones)
@@ -50,12 +51,12 @@ def eval_episodes(env, agents, num_episodes=20):
         # total_rewards.append(np.sum(episode_rewards))
         # print('rewards from episode', episode_rewards)
         total_rewards[i] = np.max(episode_rewards)
-        print(f'Episodes: {i} average {np.sum(total_rewards) / i}')
+        print(f'Episode: {i} average so far {np.sum(total_rewards) / i}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
                                     score=round(np.sum(episode_rewards), 2)), ignore_index=True)
         record.to_csv(f'{agents[0].name}-test-results.csv')
-    print('max_steps_in_episode', max_steps_in_episode)
+    print('Number of steps in longest', max_steps_in_episode)
     return np.mean(total_rewards)
 
 def save_agents(agents, suffix=None):
@@ -65,22 +66,29 @@ def save_agents(agents, suffix=None):
         else:
             agent.save()
 
-def train_agent(name, env, agents, max_steps=1e6, break_on_reward=35, save_interval=1e4, eval_interval=1e4):
+def train_agent(name, env, agents, max_steps=1e6, break_on_reward=10, save_interval=1e4, eval_interval=1e4):
     print(time.strftime("%H:%M:%S", time.localtime()), 'start training')
     states = env.reset()
     # print('state', states)
     record = pd.DataFrame(columns=['time', 'steps', 'average_score'])
     t0 = time.time()
+    highest_episode_reward = 0
     highest_reward = 0
+    episode_agent_rewards = np.zeros(len(agents))
     dones = [False, False]
     while True:
         # print('save_interval', config.save_interval, 'total_steps', agent.total_steps)
         if any(dones):
             states = env.reset()
+            max_reward_for_episode = np.max(episode_agent_rewards)
+            if max_reward_for_episode > highest_episode_reward:
+                highest_episode_reward = max_reward_for_episode
+                print('new highest episode reward', highest_episode_reward)
+            episode_agent_rewards = np.zeros(len(agents))
         if save_interval and not agents[0].total_steps % save_interval:
             save_agents(agents)
         if eval_interval and not agents[0].total_steps == 0 and not agents[0].total_steps % eval_interval:
-            print('agent.eval_episodes')
+            print('------ Evaluate training -------')
             average_reward = eval_episodes(env, agents, num_episodes=100)
             print(time.strftime("%H:%M:%S", time.localtime()),
                   f'After {agents[0].total_steps} steps ', 'average reward:', average_reward)
@@ -107,11 +115,12 @@ def train_agent(name, env, agents, max_steps=1e6, break_on_reward=35, save_inter
             all_actions[i,:] = actions
         # print('all_actions.shape', all_actions.shape)
         next_states, rewards, dones, info = env.step(all_actions)
+        episode_agent_rewards += rewards
         for i, agent in enumerate(agents):
             # print('rewards', rewards)
             # print('states.shape', states.shape)
             # print('states[i].shape', states[i].shape)
-            agent.step(states[i], all_actions[i,:], rewards[i], next_states[i], dones)
+            agent.step(states[i], all_actions[i,:], rewards[i], next_states[i], dones[i])
         states = next_states
     average_reward = eval_episodes(env, agents)
     if average_reward > highest_reward:
@@ -141,6 +150,8 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--filename', metavar='filename', help='filename of model')
     parser.add_argument('-a', '--agent', metavar='agent', required=True, help='agent - ddpg, td3, a2c, ppo')
     parser.add_argument('-s', '--steps', metavar='steps', help='Number of steps')
+    parser.add_argument('-r', '--shared-replay', metavar='shared_replay', help='Use shared replay buffer', default=False, type=bool)
+    parser.add_argument('-l', '--learn-frequency', metavar='learn_freq', help='Number of steps between learning', default=LEARN_EVERY_STEPS, type=int)
 
 
     args = parser.parse_args()
@@ -160,7 +171,10 @@ if __name__ == '__main__':
     agent_fn = agents[args.agent]
     agents = []
 
-    replay_buffer = ReplayBuffer(env.action_size, BUFFER_SIZE, BATCH_SIZE, RANDOM_SEED)
+    if args.shared_replay:
+        replay_buffer = ReplayBuffer(env.action_size, BUFFER_SIZE, BATCH_SIZE, RANDOM_SEED)
+    else:
+        replay_buffer = False
     for i in range(env.num_agents):
         agent = agent_fn(name=f'name-{i}',
                          state_size=env.state_size,
@@ -170,7 +184,7 @@ if __name__ == '__main__':
                          replay_buffer=replay_buffer,
                          buffer_size=BUFFER_SIZE,
                          batch_size=BATCH_SIZE,
-                         learn_every_steps=LEARN_EVERY_STEPS)
+                         learn_every_steps=args.learn_frequency)
         agents.append(agent)
     if train_mode:
         max_steps = int(args.steps) if args.steps else int(1e6)

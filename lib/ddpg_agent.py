@@ -85,7 +85,7 @@ class DDPG_Agent(BaseAgent):
         if replay_buffer:
             self.memory = replay_buffer
         else:
-            self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
+            self.memory = ReplayBuffer(action_size, self.buffer_size, self.batch_size, random_seed)
 
     
     # given a state what should be the action?
@@ -111,10 +111,10 @@ class DDPG_Agent(BaseAgent):
 
         self.memory.add(state, action, reward, next_state, done)
 
-        if done[0]:
+        if done:
             self.noise.reset()
         # Learn, if enough samples are available in memory
-        if self.memory.size() > BATCH_SIZE:
+        if self.memory.size() > self.batch_size:
             if self.total_steps % self.learn_every_steps == 0:
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
