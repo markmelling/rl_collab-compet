@@ -12,18 +12,17 @@ This project uses the [Tennis](https://github.com/Unity-Technologies/ml-agents/b
 
 ## Solving the Environment
 
-This project uses the single agent variant of the Unity environment and demonstrates the solution using two different algorithms:
-- Deep Deterministic Policy Gradient (DDPG) (https://arxiv.org/abs/1509.02971v6)
-- Twin Delayed Deep Deterministic (TD3) (https://arxiv.org/abs/1802.09477v3)
+This project uses the two agent Tennis Unity environment to show a solution using the Twin Delayed Deep Deterministic (TD3) algorithm (https://arxiv.org/abs/1802.09477v3)
 
-Both algorithms were successfully able to achieve an average reward of > 30 for 100 episodes.
+The solutions successfully achieves a score of > 0.5 on average for 100 episodes.
 
+The DDPG algorithm was also tried, but this failed to reach the target score given the number of episodes used in training. From previous experiments DDPG does appear to take much longer to train, which may be the reason why a solution was not achieved.
 
 ## Implementation
 
-The code to train or test either of the implemented models can either be run from the command line or from a Jupyter notebook (see `Tennis.ipynb`)
+The code to train or test the implemented model can either be run from the command line or from a Jupyter notebook (see `Tennis.ipynb`)
 
-`run_agent.py` in the root of this repo is used to test or evaluate the models.
+`run_agent.py` in the root of this repo is used to test or evaluate the model.
 
 All other source files are in the lib folder
 
@@ -55,6 +54,8 @@ Implements the relevent algorithm for updating the neural network and performing
 ## Learning Algorithms
 
 There are two learning algorithms implemented, Deep Deterministic Policy Gradient and Twin Delayed Deep Deterministic
+
+Initially DDPG was attempted, but this failed to 'solve' the environment in the length of training carried out.
 
 ### Deep Deterministic Policy Gradient
 Deep Deterministic Policy Gradient is a model-free, off-policy algorithm for learning continuous actions. It combines Deterministic Policy Gradient and Deep Q-Network. 
@@ -92,7 +93,7 @@ An Ornstein-Uhlenbeck process is used for generating noise to implement better e
 - Critic network has 2 hidden layers with 400 and 300 units respectively
 - Critic learning rate: 1e-3
 
-
+ 
 ### Twin Delayed Deep Deterministic 
 TD3 builds on DDPG, like DDPG it is an model-free, off-policy algorithm that supports continuous action spaces. DDPG can over estimate Q-values which leads to the policy breaking, to tackle this TD3 introduces three improvements:
 - TD3 uses 2 Q-learning networks and in calculating the Bellman Optimality Equation it takes the minimium of these two networks `target = rewards + (gamma * (1 - dones) * torch.min(q_1, q_2))`
@@ -123,26 +124,11 @@ A gaussian process is used for generating noise.
 
 ## Plot of rewards
 
-### DDPG
-
-The DDPG agent produced an average score of 36.24 over 100 episodes
-
-The DDPG agent takes 480,000 steps to produce an average score of > 30
-
-![test scores][image3]
-
-#### Plot of rewards during training
-![Learning rate][image1]
-
-
-#### Model weights
-The model weights for a DDPG agent that produces scores of 30+ is stored in `Reacher_DDPG_Trained.pth`
-
 ### TD3
 
 The TD3 agent produced an average score of 36.92 over 100 episodes
 
-The TD3 agent takes 100,000 steps to produce an average score of > 30
+The TD3 agent takes 100,000 steps to produce an average score of > 0.5
 
 #### Plot of rewards during training
 ![Learning rate][image2]
@@ -151,19 +137,15 @@ The TD3 agent takes 100,000 steps to produce an average score of > 30
 ![test scores][image4]
 
 #### Model weights
-The model weights for a DDPG agent that produces scores of 30+ is stored in `Reacher_TD3_Trained.pth`
-
-
-### Comparison of DDPG and TD3
-The TD3 algorithm significantly reduced the time to 'solve' the environment. TD3 was a lot more stable and took about 100,000 steps to reach a score of 30+ whereas with DDPG there was a lot more variation in the scores during training and it took 480,000 steps to achieve a score of over 30.
+The model weights for a TD3 based solutions that scores 0.5+ is stored in `Tennis_TD3_Trained-0.pth` and `Tennis_TD3_Trained-1.pth` for each agent.
 
 
 ### Future work
 The length of time that it takes to train a model is considerable on my current setup and really is a barrier to testing and experimenting. I need to investigate both improved local versions (faster computer) and 'in the cloud' options, both in terms of the reduction in time for training and cost.
 
 Other future work worth considering:
-#### Multi-agents and additional algorithms
-Add support for multiple agents and implement some of the other well know algorithms and compare their performance (e.g. PPO and A2C)
+#### Additional algorithms
+Add support for other well know algorithms and compare their performance (e.g. PPO and A2C)
 
 #### Replay buffer
 Experiment with prioritised experience replay buffer.
