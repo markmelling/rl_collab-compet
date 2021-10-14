@@ -51,7 +51,7 @@ def eval_episodes(env, agents, num_episodes=20):
         # total_rewards.append(np.sum(episode_rewards))
         # print('rewards from episode', episode_rewards)
         total_rewards[i] = np.max(episode_rewards)
-        print(f'Episode: {i+1} rewards {episode_rewards} average so far {np.sum(total_rewards) / i+1}')
+        print(f'Episode: {i+1} rewards {episode_rewards} total_rewards {np.sum(total_rewards)} average so far {np.sum(total_rewards) / (i+1)}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
                                     score=round(np.sum(episode_rewards), 2)), ignore_index=True)
@@ -135,7 +135,7 @@ def train_agent(name, env, agents, max_steps=1e6, break_on_reward=10, save_inter
     for agent in agents:
         record.to_csv(f'{agent.name}.csv')
 
-agents = {
+agent_fns = {
     'ddpg': DDPG_Agent,
     'td3': TD3_Agent,
 }
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     print(args.filename)
     print(args.agent)
     train_mode = True if args.mode == 'train' else False
-    if args.agent not in agents:
+    if args.agent not in agent_fns:
         print('invalid agent, must be ddpg or td3')
         sys.exit()
     unity_game = os.environ.get('UNITY_GAME')
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     # env = UnityEnv('Tennis', './Tennis_Linux_NoVis/Tennis.x86_64', train_mode=train_mode)
     # env = UnityEnv('Tennis', './Tennis_Linux/Tennis.x86_64', train_mode=train_mode)
     name = args.name if args.name else args.agent
-    agent_fn = agents[args.agent]
+    agent_fn = agent_fns[args.agent]
     agents = []
 
     if args.shared_replay:
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     else:
         replay_buffer = False
     for i in range(env.num_agents):
-        agent = agent_fn(name=f'name-{i}',
+        agent = agent_fn(name=f'{name}-{i}',
                          state_size=env.state_size,
                          action_size=env.action_size,
                          random_seed=RANDOM_SEED,

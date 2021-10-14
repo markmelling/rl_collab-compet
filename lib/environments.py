@@ -51,7 +51,8 @@ class UnityEnv():
         env_info = self.env.step(actions)[self.brain_name]
         next_states = env_info.vector_observations         # get next state (for each agent)
         rewards = env_info.rewards                         # get reward (for each agent)
-        # print('rewards from step of environment', rewards)
+        # if np.max(rewards) > 0:
+        #     print('rewards from step of environment', rewards)
         self.total_rewards += rewards
         dones = env_info.local_done                        # see if episode finished
         states = next_states                               # roll over states to next time step
