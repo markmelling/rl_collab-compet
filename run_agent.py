@@ -74,7 +74,7 @@ def load_agents(agents, suffix=None):
         else:
             agent.load(filename=agent.name)
 
-def train_agent(name, env, agents, max_steps=1e6, break_on_reward=10, save_interval=1e4, eval_interval=1e4):
+def train_agent(name, env, agents, max_steps=5e4, break_on_reward=10, save_interval=1e3, eval_interval=1e3):
     print(time.strftime("%H:%M:%S", time.localtime()), 'start training')
     states = env.reset()
     # print('state', states)
@@ -188,14 +188,14 @@ if __name__ == '__main__':
                          state_size=env.state_size,
                          action_size=env.action_size,
                          random_seed=RANDOM_SEED,
-                         warm_up=int(1e4),
+                         warm_up=int(1e3),
                          replay_buffer=replay_buffer,
                          buffer_size=BUFFER_SIZE,
                          batch_size=BATCH_SIZE,
                          learn_every_steps=args.learn_frequency)
         agents.append(agent)
     if train_mode:
-        max_steps = int(args.steps) if args.steps else int(1e6)
+        max_steps = int(args.steps) if args.steps else int(3e4)
         train_agent(args.name, env, agents, max_steps=max_steps)
     else:
         print('evaluating')
