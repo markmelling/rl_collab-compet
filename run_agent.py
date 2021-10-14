@@ -74,7 +74,7 @@ def load_agents(agents, suffix=None):
         else:
             agent.load(filename=agent.name)
 
-def train_agent(name, env, agents, max_episodes=2e4, break_on_reward=10, save_interval=1e3, eval_interval=1e3):
+def train_agent(name, env, agents, max_episodes=5000, break_on_reward=10, save_interval=200, eval_interval=200):
     print(time.strftime("%H:%M:%S", time.localtime()), 'start training')
     states = env.reset()
     # print('state', states)
@@ -105,23 +105,23 @@ def train_agent(name, env, agents, max_episodes=2e4, break_on_reward=10, save_in
             if num_episodes > max_episodes:
                 save_agents(agents)
                 break
-        if save_interval and num_episodes != 0 and not num_episodes % save_interval:
-            save_agents(agents)
-        if eval_interval and num_episodes != 0 and not num_episodes % eval_interval:
-            print('------ Evaluate training -------')
-            average_reward = eval_episodes(name, env, agents, num_episodes=eval_num_episodes)
-            print(time.strftime("%H:%M:%S", time.localtime()),
-                  f'After {agents[0].total_steps} steps ', 'average reward:', average_reward)
-            t1 = time.time()
-            record_avg = record_avg.append(dict(time=int(t1-t0),
-                                                episodes=int(num_episodes),
-                                                average_score=round(average_reward, 2)), ignore_index=True)
-            record_avg.to_csv(f'{name}_average_for_{eval_num_episodes}_episodes.csv')
-            if average_reward > highest_reward:
-                highest_reward = average_reward
-                save_agents(agents, suffix='best-so-far')
-                if highest_reward > break_on_reward:
-                    break
+            if save_interval and not num_episodes % save_interval:
+                save_agents(agents)
+            if eval_interval and not num_episodes % eval_interval:
+                print('------ Evaluate training -------')
+                average_reward = eval_episodes(name, env, agents, num_episodes=eval_num_episodes)
+                print(time.strftime("%H:%M:%S", time.localtime()),
+                    f'After {agents[0].total_steps} steps ', 'average reward:', average_reward)
+                t1 = time.time()
+                record_avg = record_avg.append(dict(time=int(t1-t0),
+                                                    episodes=int(num_episodes),
+                                                    average_score=round(average_reward, 2)), ignore_index=True)
+                record_avg.to_csv(f'{name}_average_for_{eval_num_episodes}_episodes.csv')
+                if average_reward > highest_reward:
+                    highest_reward = average_reward
+                    save_agents(agents, suffix='best-so-far')
+                    if highest_reward > break_on_reward:
+                        break
 
         all_actions = np.zeros((len(agents), env.action_size))
         for i, agent in enumerate(agents):
@@ -201,7 +201,7 @@ if __name__ == '__main__':
                          learn_every_steps=args.learn_frequency)
         agents.append(agent)
     if train_mode:
-        max_episodes = int(args.episodes) if args.episodes else int(1e4)
+        max_episodes = int(args.episodes) if args.episodes else int(3000)
         train_agent(args.name, env, agents, max_episodes=max_episodes)
     else:
         print('evaluating')
