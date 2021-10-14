@@ -51,7 +51,8 @@ def eval_episodes(env, agents, num_episodes=20):
         # total_rewards.append(np.sum(episode_rewards))
         # print('rewards from episode', episode_rewards)
         total_rewards[i] = np.max(episode_rewards)
-        print(f'Episode: {i+1} rewards {episode_rewards} total_rewards {np.sum(total_rewards)} average so far {np.sum(total_rewards) / (i+1)}')
+        print(f'Episode: {i+1} average so far {np.sum(total_rewards) / (i+1)}')
+        # print(f'Episode: {i+1} rewards {episode_rewards} total_rewards {np.sum(total_rewards)} average so far {np.sum(total_rewards) / (i+1)}')
         t1 = time.time()
         record = record.append(dict(time=round(t1-t0),
                                     score=round(np.sum(episode_rewards), 2)), ignore_index=True)
@@ -65,6 +66,13 @@ def save_agents(agents, suffix=None):
             agent.save(f'{agent.name}-{suffix}')
         else:
             agent.save()
+
+def load_agents(agents, suffix=None):
+    for i, agent in enumerate(agents):
+        if suffix:
+            agent.load(filename=f'{agent.name}-{suffix}')
+        else:
+            agent.load(filename=agent.name)
 
 def train_agent(name, env, agents, max_steps=1e6, break_on_reward=10, save_interval=1e4, eval_interval=1e4):
     print(time.strftime("%H:%M:%S", time.localtime()), 'start training')
@@ -191,7 +199,7 @@ if __name__ == '__main__':
         train_agent(args.name, env, agents, max_steps=max_steps)
     else:
         print('evaluating')
-        agent.load(filename=args.name)
+        load_agents(agents)
         n_episodes = args.steps if args.steps else 100
         average_reward = eval_episodes(env, agents, num_episodes=n_episodes)
         print(f'average score for {n_episodes} episodes is {average_reward}')
