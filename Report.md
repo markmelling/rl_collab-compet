@@ -126,9 +126,10 @@ A gaussian process is used for generating noise.
 
 ### TD3
 
-The TD3 agent produced an average score of 2.35 over 100 episodes
+Using the pre-trained model weights the TD3 agent produced an average score of 2.35 over 100 episodes
 
-The TD3 agent takes 100,000 steps to produce an average score of > 0.5
+An average score of 0.5+ is achieved after 496 episodes
+
 
 #### Plot of rewards during training
 ![Learning rate](images/tennis_td3_learning_rate.png)
