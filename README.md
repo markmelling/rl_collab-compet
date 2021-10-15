@@ -1,7 +1,8 @@
 [//]: # (Image References)
 
-[image1](/blob/main/tennis_trained.gif?raw=true "Trained Agent")
-[trained_agent](tennis_trained.gif "Trained Agent")
+[image1](/markmelling/rl_collab-compet/tennis_trained.gif?raw=true "Trained Agent")
+
+[trained_agent](tennis_trained.gif?raw=true "Trained Agent")
 
 # Collaboration and Competition
 
