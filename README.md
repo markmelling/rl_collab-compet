@@ -12,7 +12,7 @@ In the environment, two agents control rackets to bounce a ball over a net. If a
 
 The observation space consists of 8 variables corresponding to the position and velocity of the ball and racket. Each agent receives its own, local observation.  Two continuous actions are available, corresponding to movement toward (or away from) the net, and jumping. 
 
-The task is episodic, and in order to solve the environment, your agents must get an average score of +0.5 (over 100 consecutive episodes, after taking the maximum over both agents). Specifically,
+The task is episodic, and in order to solve the environment, the agents must get an average score of +0.5 (over 100 consecutive episodes, after taking the maximum over both agents). Specifically,
 
 - After each episode, we add up the rewards that each agent received (without discounting), to get a score for each agent. This yields 2 (potentially different) scores. We then take the maximum of these 2 scores.
 - This yields a single **score** for each episode.
@@ -21,11 +21,11 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 ### Solving the Environment
 
-This project uses the single agent variant of the Unity environment and demonstrates the solution using two different algorithms:
-- Deep Deterministic Policy Gradient (DDPG) (https://arxiv.org/abs/1509.02971v6)
-- Twin Delayed Deep Deterministic (TD3) (https://arxiv.org/abs/1802.09477v3)
+This project uses the two agent Tennis Unity environment to show a solution using the Twin Delayed Deep Deterministic (TD3) algorithm (https://arxiv.org/abs/1802.09477v3)
 
-Both algorithms were successfully able to achieve an average reward of > 0.5 for 100 episodes.
+The solutions successfully achieves a score of > 0.5 on average for 100 episodes.
+
+The DDPG algorithm was also tried, but this failed to reach the target score given the number of episodes used in training. From previous experiments DDPG does appear to take much longer to train, which may be the reason why a solution was not achieved.
 
 ## Getting Started
 
@@ -83,15 +83,10 @@ python -m ipykernel install --user --name drlnd --display-name "drlnd"
 
 You can train and evaluate the agents either from the notebook `Tennis.ipynb` or from the command line (I've not tried it on Windows)
 
-For the notebook follow the instructions there.
+For the notebook follow the instructions in `Tennis.ipynb`.
 
 For the command line to train an agent you can run:
 ```
-
-# for DDPG
-python train.py -m train -a ddpg -n 'The_name_of_your_choosing'
-
-# for TD3
 python train.py -m train -a 'td3 -n 'The_name_of_your_choosing'
 ```
 
@@ -102,10 +97,6 @@ To run an evaluation test from the command line:
 
 ```
 
-# for DDPG
-python train.py -m test -a ddpg -n 'The_name_of_your_choosing'
-
-# for TD3
 python train.py -m test -a 'td3 -n 'The_name_of_your_choosing'
 ```
 
@@ -113,9 +104,9 @@ This will return the average score for 100 episodes
 
 
 ### Pre-trained models
-There are pre-trained models that produce 30+ rewards for both DDPG and TD3
-- `Tennis_DDPG_Trained.pth`
-- `Tennis_TD3_Trained.pth`
+Pre-trained model weights that solve the environment have been saved for both agents
+- `Tennis_TD3_Trained-0.pth`
+- `Tennis_TD3_Trained-1.pth`
 
 ## Source code
 Outside of the `Tennis.ipynb` notebook there are the following python files:
@@ -124,7 +115,7 @@ All other source code files are in the lib folder
 
 - environments.py - provides a wrapper around a unity environment
 - ddpg_agent.py - DDPG_Agent class implements the DDPG algorithm
-- td3_agent.py - TD3_Agent class implements the DDPG algorithm
+- td3_agent.py - TD3_Agent class implements the TD3 algorithm
 - model.py 
   - Implementations of a Deterministic Actor Critic Neural Network 
   - Implementations of a Neural Network supporting TD3
