@@ -1,6 +1,6 @@
 [//]: # (Image References)
 
-[image1](/markmelling/rl_collab-compet/tennis_trained.gif?raw=true "Trained Agent")
+[image1](/tennis_trained.gif?raw=true "Trained Agent")
 
 [trained_agent](tennis_trained.gif?raw=true "Trained Agent")
 
