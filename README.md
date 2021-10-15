@@ -1,17 +1,12 @@
 [//]: # (Image References)
 
-[image1](https://github.com/markmelling/rl_collab-compet/blob/main/tennis_trained.gif?raw=true "Trained Agent")
-
-[trained_agent](/images/tennis_trained.gif?raw=true "Trained Agent")
-
 # Collaboration and Competition
 
 ### Introduction
 
 This project uses the [Tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) environment to demonstrate two agents collaborating.
 
-![Trained Agent][image1]
-![Trained Agent][trained_agent]
+![Trained Agent](images/tennis_trained.gif)
 
 In the environment, two agents control rackets to bounce a ball over a net. If an agent hits the ball over the net, it receives a reward of +0.1.  If an agent lets a ball hit the ground or hits the ball out of bounds, it receives a reward of -0.01.  Thus, the goal of each agent is to keep the ball in play.
 
@@ -24,7 +19,6 @@ The task is episodic, and in order to solve the environment, your agents must ge
 
 The environment is considered solved, when the average (over 100 episodes) of those **scores** is at least +0.5.
 
-![chart](images/tennis_td3_test_scores.png)
 ### Solving the Environment
 
 This project uses the single agent variant of the Unity environment and demonstrates the solution using two different algorithms:
@@ -35,7 +29,6 @@ Both algorithms were successfully able to achieve an average reward of > 0.5 for
 
 ## Getting Started
 
-![chart](images/tennis_td3_test_scores.png)
 ### Installing the dependencies
 To run the code either from the command line or a Jupyter Notebook you need to make sure you have the Unity environment, Python and the required libraries installed.
 
@@ -46,7 +39,6 @@ If you don't have conda installed then follow the instructions here: [miniconda]
 
 With conda installed, create and activate a conda environment which uses python 3.6 by entering the following commands in a terminal window
 
-![image3](images/tennis_trained.gif)
 - For Linux or Mac
 ```shell
 conda create --name drlnd python=3.6

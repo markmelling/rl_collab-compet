@@ -131,10 +131,10 @@ The TD3 agent produced an average score of 36.92 over 100 episodes
 The TD3 agent takes 100,000 steps to produce an average score of > 0.5
 
 #### Plot of rewards during training
-![Learning rate][image2]
+![Learning rate](images/tennis_td3_learning_rate.png)
 
 #### Distribution of episode rewards over 100 test episodes
-![test scores][image4]
+![test scores](images/tennis_td3_test_scores.png)
 
 #### Model weights
 The model weights for a TD3 based solutions that scores 0.5+ is stored in `Tennis_TD3_Trained-0.pth` and `Tennis_TD3_Trained-1.pth` for each agent.
